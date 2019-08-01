@@ -1,0 +1,16 @@
+package: github.com/openshift/kube-publishing-setup-bot
+excludeDirs:
+  - kube-publishing-setup-bot.local
+import:
+- package: github.com/spf13/cobra
+  version: v0.0.4
+- package: github.com/spf13/pflag
+  version: v1.0.3
+- package: github.com/src-d/go-git
+  version: v4.13.0
+- package: github.com/src-d/go-billy
+  version: v4.3.2
+- package: golang.org/x/tools
+  version: ff9f1409240a
+- package: golang.org/x/net
+  version: ca1201d0de80
