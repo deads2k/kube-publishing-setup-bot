@@ -162,9 +162,16 @@ func getRepoInfoForStaging(streams genericclioptions.IOStreams, currInfo RepoInf
 		}
 
 		repoName := path.Base(filePath)
-		if repoName == "cri-api" || repoName == "kubectl" || repoName == "legacy-cloud-providers" { // need repo
+
+		// if there is a new staging repo, we may need to skip it until we get a new repo created for it.  It's probably easier to just get a new forked repo.
+		// Ask James Russell in forum-dp-platform
+		missingForks := map[string]bool{
+			// "repo-name": true
+		}
+		if missingForks[repoName] { // need repo
 			return nil
 		}
+
 		fmt.Println(repoName)
 		currPath := path.Join(path.Dir(currInfo.Path), repoName)
 		ret = append(ret,
