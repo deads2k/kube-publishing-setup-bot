@@ -1,10 +1,11 @@
-
 package genericclioptions
 
 import (
 	"bytes"
 	"io"
 	"io/ioutil"
+
+	"github.com/kr/text"
 )
 
 // IOStreams provides the standard names for iostreams.  This is useful for embedding and for unit testing.
@@ -39,4 +40,17 @@ func NewTestIOStreamsDiscard() IOStreams {
 		Out:    ioutil.Discard,
 		ErrOut: ioutil.Discard,
 	}
+}
+
+func (o IOStreams) Prefix(prefix string) IOStreams {
+	ret := IOStreams{
+		In:     o.In,
+		Out:    text.NewIndentWriter(o.Out, []byte(prefix)),
+		ErrOut: text.NewIndentWriter(o.ErrOut, []byte(prefix)),
+	}
+	return ret
+}
+
+func (o IOStreams) Indent() IOStreams {
+	return o.Prefix("    ")
 }

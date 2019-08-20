@@ -14,3 +14,5 @@ import:
   version: ff9f1409240a
 - package: golang.org/x/net
   version: ca1201d0de80
+- package: github.com/kr/text
+  version: master
