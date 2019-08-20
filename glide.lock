@@ -1,5 +1,5 @@
-hash: 97a529f67ae458085403080b18f01e323f3e591fc4b76a72dab1e796da9a4acc
-updated: 2019-08-01T08:16:29.615459544-04:00
+hash: 9479496bc80c595b119f715a5cf223093de67c946a9bad4fe45f84e49a07d591
+updated: 2019-08-20T07:50:44.052025883-04:00
 imports:
 - name: github.com/emirpasic/gods
   version: e689965507abbc7225d130c80ca2560291891f8a
@@ -18,6 +18,8 @@ imports:
   - io
 - name: github.com/kevinburke/ssh_config
   version: 01f96b0aa0cdcaa93f9495f89bbc6cb5a992ce6e
+- name: github.com/kr/text
+  version: e2ffdb16a802fe2bb95e2e35ff34f0e53aeef34f
 - name: github.com/mitchellh/go-homedir
   version: af06845cf3004701891bf4fdb884bfe4920b3727
 - name: github.com/sergi/go-diff
@@ -82,7 +84,7 @@ imports:
   - osfs
   - util
 - name: gopkg.in/src-d/go-git.v4
-  version: 6241d0e70427cb0db4ca00182717af88f638268c
+  version: 0d1a009cbb604db18be960db5f1525b99a55d727
   subpackages:
   - config
   - internal/revision
