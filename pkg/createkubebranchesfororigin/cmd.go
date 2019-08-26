@@ -4,22 +4,20 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/openshift/kube-publishing-setup-bot/pkg/kubefork"
-
-	"gopkg.in/src-d/go-git.v4/plumbing"
-
 	"github.com/openshift/kube-publishing-setup-bot/pkg/genericclioptions"
+	"github.com/openshift/kube-publishing-setup-bot/pkg/kubefork"
 	"github.com/spf13/cobra"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/config"
+	"gopkg.in/src-d/go-git.v4/plumbing"
 )
 
 type CreateKubeBranchesForOriginOptions struct {
 	Streams genericclioptions.IOStreams
 
-	KubeHome      string
-	OriginVersion string
-	KubeVersion   string
+	KubeHome    string
+	ForkVersion string
+	KubeVersion string
 }
 
 func NewCreateKubeBranchesForOriginOptions(streams genericclioptions.IOStreams) *CreateKubeBranchesForOriginOptions {
@@ -33,7 +31,7 @@ func NewCreateKubeBranchesForOriginOptions(streams genericclioptions.IOStreams) 
 func NewCmdCreateKubeBranchesForOriginOptions(streams genericclioptions.IOStreams) *cobra.Command {
 	o := NewCreateKubeBranchesForOriginOptions(streams)
 	cmd := &cobra.Command{
-		Use: "create-kube-branches-for-origin-options --kube-home=/path/to/k8s.io --origin-version=4.3 --kube-version=1.14.0",
+		Use: "create-kube-branches-for-origin-options --kube-home=/path/to/k8s.io --fork-version=4.3 --kube-version=1.14.0",
 		Long: `
 --kube-home must point to /path/to/k8s.io where /path/to/k8s.io/{kubernetes,api,apimachinery,etcd} should be.
 
@@ -49,18 +47,18 @@ This command will auto-create it if necessary and auto-create the repos inside o
 	}
 
 	cmd.Flags().StringVar(&o.KubeHome, "kube-home", o.KubeHome, "points to /path/to/k8s.io where /path/to/k8s.io/{kubernetes,api,apimachinery,etcd} should be.")
-	cmd.Flags().StringVar(&o.OriginVersion, "origin-version", o.OriginVersion, "origin version")
-	cmd.Flags().StringVar(&o.KubeVersion, "kube-version", o.KubeVersion, "kube version")
+	cmd.Flags().StringVar(&o.ForkVersion, "fork-version", o.ForkVersion, "fork version, like 4.2")
+	cmd.Flags().StringVar(&o.KubeVersion, "kube-version", o.KubeVersion, "kube version, like 1.14.1")
 
 	return cmd
 }
 
 func (o *CreateKubeBranchesForOriginOptions) Run() error {
-	if len(o.OriginVersion) == 0 {
-		return fmt.Errorf("must have origin version")
+	if len(o.ForkVersion) == 0 {
+		return fmt.Errorf("must have fork-version")
 	}
 	if len(o.KubeVersion) == 0 {
-		return fmt.Errorf("must have kube version")
+		return fmt.Errorf("must have kube-version")
 	}
 
 	repoInfos, err := kubefork.GetAllKubeRepos(o.Streams, o.KubeHome)
@@ -84,7 +82,7 @@ func (o *CreateKubeBranchesForOriginOptions) Run() error {
 		if err != nil {
 			return err
 		}
-		if err := pushOriginForkBranches(o.Streams.Indent(), repo, currInfo.Path, currInfo.UpstreamName, o.KubeVersion, o.OriginVersion, openshiftRemote.Config()); err != nil {
+		if err := pushOriginForkBranches(o.Streams.Indent(), repo, currInfo.Path, currInfo.UpstreamName, o.KubeVersion, o.ForkVersion, openshiftRemote.Config()); err != nil {
 			return err
 		}
 	}
@@ -93,11 +91,8 @@ func (o *CreateKubeBranchesForOriginOptions) Run() error {
 }
 
 func pushOriginForkBranches(streams genericclioptions.IOStreams, repo *git.Repository, repoPath string, upstreamName, startingKubeVersion, originVersion string, openshiftRemoteConfig *config.RemoteConfig) error {
-	startingKubeTag := "kubernetes-" + startingKubeVersion
-	if upstreamName == "kubernetes" {
-		startingKubeTag = "v" + startingKubeVersion
-	}
-	originBranchName := fmt.Sprintf("origin-%s-kubernetes-%s", originVersion, startingKubeVersion)
+	startingKubeTag := kubefork.UpstreamTag(upstreamName, startingKubeVersion)
+	originBranchName := kubefork.NewForkBranch("origin", originVersion, startingKubeVersion).BranchName()
 
 	allReferences, err := repo.References()
 	if err != nil {
