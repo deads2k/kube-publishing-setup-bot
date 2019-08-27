@@ -1,6 +1,7 @@
 package kubefork
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"os"
@@ -178,6 +179,16 @@ func RunCmd(streams genericclioptions.IOStreams, cwd string, cmdName string, arg
 	cmd.Stdout = cmdStreams.Out
 	cmd.Stderr = cmdStreams.ErrOut
 	return cmd.Run()
+}
+
+func CollectCmdStdout(cwd string, cmdName string, args ...string) (string, error) {
+	buf := &bytes.Buffer{}
+	cmd := exec.Command(cmdName, args...)
+	cmd.Dir = cwd
+	cmd.Stdout = buf
+
+	err := cmd.Run()
+	return buf.String(), err
 }
 
 func (o *RepoInfo) GetOrCreateRemoteKube(streams genericclioptions.IOStreams) (*git.Remote, error) {
