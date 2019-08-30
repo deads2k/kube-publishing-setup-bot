@@ -111,9 +111,6 @@ func GetRepoInfoForStaging(streams genericclioptions.IOStreams, currInfo RepoInf
 
 		repoName := path.Base(filePath)
 		names = append(names, repoName)
-		if repoName == "cri-api" || repoName == "kubectl" || repoName == "legacy-cloud-providers" { // need repo
-			return nil
-		}
 		currPath := path.Join(path.Dir(currInfo.Path), repoName)
 		ret = append(ret,
 			RepoInfo{
